@@ -1809,15 +1809,42 @@
             const { correctAnswer } = question;
             let correct = false;
 
+            const tolerance = (question.timelineEnd - question.timelineStart) * 0.05;
+
+            const isOnSnapPoint = (value) => {
+                const range = question.timelineEnd - question.timelineStart;
+                if (range === 0) return true;
+
+                const notchSize = range / 10;
+                if (notchSize === 0) return true;
+
+                const relative = (value - question.timelineStart) / notchSize;
+                const epsilon = 1e-6;
+                return Math.abs(relative - Math.round(relative)) < epsilon;
+            };
+
             if (correctAnswer.type === 'dot' && dotPosition !== null) {
                 const [minValid, maxValid] = correctAnswer.validRange;
                 correct = dotPosition >= minValid && dotPosition <= maxValid;
+
+                if (!correct && minValid === maxValid && !isOnSnapPoint(minValid)) {
+                    correct = Math.abs(dotPosition - minValid) <= tolerance;
+                }
             } else if (correctAnswer.type === 'bar' && barPosition !== null) {
                 const { validStartRange, validEndRange } = correctAnswer;
-                const startCorrect = barPosition.start >= validStartRange[0] && 
+                let startCorrect = barPosition.start >= validStartRange[0] &&
                                     barPosition.start <= validStartRange[1];
-                const endCorrect = barPosition.end >= validEndRange[0] && 
+                let endCorrect = barPosition.end >= validEndRange[0] &&
                                   barPosition.end <= validEndRange[1];
+
+                if (!startCorrect && validStartRange[0] === validStartRange[1] && !isOnSnapPoint(validStartRange[0])) {
+                    startCorrect = Math.abs(barPosition.start - validStartRange[0]) <= tolerance;
+                }
+
+                if (!endCorrect && validEndRange[0] === validEndRange[1] && !isOnSnapPoint(validEndRange[0])) {
+                    endCorrect = Math.abs(barPosition.end - validEndRange[0]) <= tolerance;
+                }
+
                 correct = startCorrect && endCorrect;
             }
 
