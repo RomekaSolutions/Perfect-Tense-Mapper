@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfect Tense Timeline Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Start Screen Styles */
+        .start-screen {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 40px;
+            text-align: center;
+        }
+
+        .start-screen h1 {
+            color: #4f46e5;
+            font-size: 32px;
+            margin-bottom: 16px;
+        }
+
+        .start-screen p {
+            color: #6b7280;
+            font-size: 16px;
+            margin-bottom: 32px;
+        }
+
+        .mode-selection {
+            margin-bottom: 32px;
+        }
+
+        .mode-selection h2 {
+            color: #374151;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 16px 32px;
+            border: 3px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-width: 200px;
+        }
+
+        .mode-btn:hover {
+            border-color: #4f46e5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(79, 70, 229, 0.2);
+        }
+
+        .mode-btn.selected {
+            border-color: #4f46e5;
+            background: #eef2ff;
+        }
+
+        .mode-btn h3 {
+            color: #1f2937;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .mode-btn p {
+            color: #6b7280;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .tense-selection {
+            margin-bottom: 32px;
+        }
+
+        .tense-selection h2 {
+            color: #374151;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .tense-checkboxes {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .tense-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .tense-checkbox:hover {
+            background: #e5e7eb;
+        }
+
+        .tense-checkbox input {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+
+        .tense-checkbox label {
+            cursor: pointer;
+            font-size: 14px;
+            color: #374151;
+            user-select: none;
+        }
+
+        .start-game-btn {
+            padding: 16px 48px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .start-game-btn:hover:not(:disabled) {
+            background: #4338ca;
+        }
+
+        .start-game-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .game-screen {
+            display: none;
+        }
+
+        .game-screen.active {
+            display: block;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        h1 {
+            color: #4f46e5;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .score-controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .score {
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .toggle-btn, .back-btn {
+            padding: 8px 16px;
+            background: #e5e7eb;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-btn:hover, .back-btn:hover {
+            background: #d1d5db;
+        }
+
+        .question-text {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .question-number {
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* Blank Mode Specific */
+        .blank-mode-controls {
+            background: #fef3c7;
+            border: 2px dashed #f59e0b;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .blank-mode-controls h3 {
+            color: #92400e;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .blank-control-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .blank-control-row label {
+            font-size: 14px;
+            color: #78350f;
+            min-width: 120px;
+        }
+
+        .blank-control-row input, .blank-control-row select {
+            padding: 6px 12px;
+            border: 1px solid #d97706;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .add-marker-btn {
+            padding: 6px 16px;
+            background: #f59e0b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .add-marker-btn:hover {
+            background: #d97706;
+        }
+
+        .marker-selection {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .marker-hint {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .marker-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .marker-btn.inactive {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .marker-btn.inactive:hover {
+            background: #d1d5db;
+        }
+
+        .marker-btn.active {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .marker-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .hint-section {
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .hint-btn {
+            padding: 10px 20px;
+            background: #fef3c7;
+            color: #92400e;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hint-btn:hover:not(:disabled) {
+            background: #fde68a;
+        }
+
+        .hint-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .hints-display {
+            margin-top: 16px;
+            background: #fffbeb;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .hint-item {
+            color: #92400e;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .hint-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-container {
+            position: relative;
+            padding-top: 40px;
+            padding-bottom: 60px;
+        }
+
+        .timeline {
+            position: relative;
+            height: 80px;
+            background: #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .timeline.disabled {
+            cursor: default;
+        }
+
+        .timeline-notch {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #9ca3af;
+        }
+
+        .timeline-label {
+            position: absolute;
+            top: -30px;
+            font-size: 12px;
+            color: #4b5563;
+            transform: translateX(-50%);
+        }
+
+        .now-marker {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #ef4444;
+            z-index: 10;
+        }
+
+        .now-marker.movable {
+            cursor: move;
+        }
+
+        .now-label {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ef4444;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .now-arrow {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 10px solid #ef4444;
+        }
+
+        .additional-marker {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #a855f7;
+            z-index: 10;
+            cursor: move;
+        }
+
+        .additional-marker-label {
+            position: absolute;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #a855f7;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .user-bar {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 48px;
+            border-radius: 6px;
+            transition: background 0.3s;
+            z-index: 20;
+        }
+
+        .user-bar.default {
+            background: #4f46e5;
+        }
+
+        .user-bar.correct {
+            background: #10b981;
+        }
+
+        .user-bar.incorrect {
+            background: #ef4444;
+        }
+
+        .bar-handle {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            background: white;
+            border: 4px solid #312e81;
+            border-radius: 50%;
+            cursor: ew-resize;
+            transition: transform 0.2s;
+            touch-action: none;
+        }
+
+        .bar-handle:hover {
+            transform: translateY(-50%) scale(1.2);
+        }
+
+        .bar-handle.start {
+            left: 0;
+            transform: translate(-50%, -50%);
+        }
+
+        .bar-handle.start:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        .bar-handle.end {
+            right: 0;
+            transform: translate(50%, -50%);
+        }
+
+        .bar-handle.end:hover {
+            transform: translate(50%, -50%) scale(1.2);
+        }
+
+        .user-dot {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            z-index: 20;
+            transition: background 0.3s;
+        }
+
+        .user-dot.default {
+            background: #4f46e5;
+        }
+
+        .user-dot.correct {
+            background: #10b981;
+        }
+
+        .user-dot.incorrect {
+            background: #ef4444;
+        }
+
+        .correct-answer-overlay {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 48px;
+            background: #10b981;
+            opacity: 0.5;
+            border-radius: 6px;
+            z-index: 15;
+        }
+
+        .correct-dot-overlay {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #10b981;
+            opacity: 0.5;
+            z-index: 15;
+        }
+
+        .scale-label {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .feedback {
+            margin-top: 24px;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .feedback.correct {
+            background: #d1fae5;
+        }
+
+        .feedback.incorrect {
+            background: #fee2e2;
+        }
+
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .feedback.correct .feedback-header {
+            color: #065f46;
+        }
+
+        .feedback.incorrect .feedback-header {
+            color: #991b1b;
+        }
+
+        .feedback-text {
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        .submit-btn, .next-btn, .clear-btn {
+            padding: 12px 32px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .submit-btn:hover:not(:disabled), .next-btn:hover:not(:disabled) {
+            background: #4338ca;
+        }
+
+        .clear-btn {
+            background: #6b7280;
+        }
+
+        .clear-btn:hover {
+            background: #4b5563;
+        }
+
+        .submit-btn:disabled, .next-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            .question-text {
+                font-size: 20px;
+            }
+
+            .marker-btn {
+                font-size: 14px;
+                padding: 10px 20px;
+            }
+
+            .bar-handle {
+                width: 40px;
+                height: 40px;
+                border-width: 5px;
+            }
+
+            .user-dot {
+                width: 40px;
+                height: 40px;
+            }
+
+            .mode-btn {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Start Screen -->
+        <div class="start-screen" id="startScreen">
+            <h1>🎯 Perfect Tense Timeline</h1>
+            <p>Master perfect tenses through visual timeline placement</p>
+
+            <!-- Mode Selection -->
+            <div class="mode-selection">
+                <h2>Select Mode</h2>
+                <div class="mode-buttons">
+                    <div class="mode-btn" id="practiceBtn" onclick="selectMode('practice')">
+                        <h3>📚 Practice Mode</h3>
+                        <p>Learn at your own pace, no scoring</p>
+                    </div>
+                    <div class="mode-btn" id="gameBtn" onclick="selectMode('game')">
+                        <h3>🎮 Game Mode</h3>
+                        <p>Challenge with scoring</p>
+                    </div>
+                    <div class="mode-btn" id="blankBtn" onclick="selectMode('blank')">
+                        <h3>👨‍🏫 Blank Mode</h3>
+                        <p>Teaching tool - create custom examples</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tense Selection (hidden in blank mode) -->
+            <div class="tense-selection" id="tenseSelection">
+                <h2>Select Tenses to Practice</h2>
+                <div class="tense-checkboxes">
+                    <div class="tense-checkbox">
+                        <input type="checkbox" id="allTenses" onchange="toggleAllTenses()">
+                        <label for="allTenses">All Tenses</label>
+                    </div>
+                    <div class="tense-checkbox">
+                        <input type="checkbox" class="tense-filter" value="simple" checked>
+                        <label>Simple Past/Present</label>
+                    </div>
+                    <div class="tense-checkbox">
+                        <input type="checkbox" class="tense-filter" value="present_perfect" checked>
+                        <label>Present Perfect</label>
+                    </div>
+                    <div class="tense-checkbox">
+                        <input type="checkbox" class="tense-filter" value="present_perfect_continuous" checked>
+                        <label>Present Perfect Continuous</label>
+                    </div>
+                    <div class="tense-checkbox">
+                        <input type="checkbox" class="tense-filter" value="past_perfect" checked>
+                        <label>Past Perfect</label>
+                    </div>
+                    <div class="tense-checkbox">
+                        <input type="checkbox" class="tense-filter" value="future_perfect" checked>
+                        <label>Future Perfect</label>
+                    </div>
+                </div>
+            </div>
+
+            <button class="start-game-btn" id="startGameBtn" onclick="startGame()">Start</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="game-screen" id="gameScreen">
+            <!-- Header -->
+            <div class="card">
+                <div class="header">
+                    <h1>Perfect Tense Timeline</h1>
+                    <div class="score-controls">
+                        <div class="score" id="scoreDisplay" style="display: none;">Score: 0/0</div>
+                        <button class="toggle-btn" id="toggleTypeBtn" style="display: none;">
+                            ⚙️ <span id="toggleText">Hide Type</span>
+                        </button>
+                        <button class="back-btn" onclick="backToStart()">
+                            ← Back to Start
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="question-text" id="questionText">"Loading..."</div>
+                <div class="question-number" id="questionNumber">Question 1 of 5</div>
+            </div>
+
+            <!-- Blank Mode Controls -->
+            <div class="card" id="blankModeCard" style="display: none;">
+                <div class="blank-mode-controls">
+                    <h3>🎨 Create Your Own Example</h3>
+                    <div class="blank-control-row">
+                        <label>Statement:</label>
+                        <input type="text" id="blankStatement" placeholder="Enter a sentence..." style="flex: 1;">
+                    </div>
+                    <div class="blank-control-row">
+                        <label>Timeline Scale:</label>
+                        <select id="blankScale">
+                            <option value="years">Years</option>
+                            <option value="months">Months</option>
+                            <option value="days">Days</option>
+                            <option value="hours">Hours</option>
+                            <option value="minutes">Minutes</option>
+                        </select>
+                        <label style="margin-left: 16px;">Start:</label>
+                        <input type="number" id="blankStart" value="2010" style="width: 100px;">
+                        <label>End:</label>
+                        <input type="number" id="blankEnd" value="2025" style="width: 100px;">
+                    </div>
+                    <div class="blank-control-row">
+                        <label>NOW position:</label>
+                        <input type="number" id="blankNow" value="2025" style="width: 100px;">
+                        <button class="add-marker-btn" onclick="addBlankMarker()">+ Add Reference Point</button>
+                    </div>
+                    <div class="blank-control-row">
+                        <button class="add-marker-btn" onclick="applyBlankSettings()" style="background: #10b981;">Apply Changes</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Marker Selection -->
+            <div class="card">
+                <div class="marker-selection" id="markerSelection">
+                    <div class="marker-hint" id="markerHint">Use a BAR for this question</div>
+                    <button class="marker-btn inactive" id="dotBtn">⏱️ Moment in Time (simple)</button>
+                    <button class="marker-btn inactive" id="barBtn">📊 Period of Time (perfect)</button>
+                </div>
+
+                <div class="hint-section" id="hintSection" style="display: none;">
+                    <button class="hint-btn" id="hintBtn">
+                        ❓ Get Hint (<span id="hintCount">0/3</span>)
+                    </button>
+                    <div class="hints-display" id="hintsDisplay" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="card">
+                <div class="timeline-container">
+                    <div class="timeline" id="timeline">
+                        <!-- Notches will be added here -->
+                        <!-- NOW marker will be added here -->
+                        <!-- Additional markers will be added here -->
+                        <!-- User's bar/dot will be added here -->
+                    </div>
+                    <div class="scale-label" id="scaleLabel">Timeline in years</div>
+                </div>
+
+                <div class="feedback" id="feedback" style="display: none;"></div>
+
+                <div class="actions">
+                    <button class="clear-btn" id="clearBtn" onclick="clearAnswer()">Clear</button>
+                    <button class="submit-btn" id="submitBtn" disabled style="display: none;">Submit Answer</button>
+                    <button class="next-btn" id="nextBtn" style="display: none;">Next Question →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Question Bank - EXPANDED (15 questions covering all tenses)
+        const QUESTION_BANK = [
+            {
+                id: 1,
+                statement: "I used to live in Bangkok",
+                tense: "simple",
+                timelineScale: "years",
+                timelineStart: 2010,
+                timelineEnd: 2025,
+                nowPosition: 2025,
+                markerType: "bar",
+                correctAnswer: {
+                    type: "bar",
+                    start: 2015,
+                    end: 2020,
+                    flexible: true,
+                    validStartRange: [2010, 2020],
+                    validEndRange: [2018, 2024]
+                },
+                hints: [
+                    "Think about duration vs. moment in time",
+                    "This action happened over a period of time in the past",
+                    "Use a BAR - it lasted for several years"
+                ]
+            },
+            {
+                id: 2,
+                statement: "I have been boiling an egg",
+                tense: "present_perfect_continuous",
+                timelineScale: "minutes",
+                timelineStart: 0,
+                timelineEnd: 15,
+                nowPosition: 10,
+                markerType: "bar",
+                correctAnswer: {
+                    type: "bar",
+                    start: 5,
+                    end: 10,
+                    mustEndAtNow: true,
+                    flexible: true,
+                    validStartRange: [3, 8],
+                    validEndRange: [10, 10]
+                },
+                hints: [
+                    "Think about when this action started and if it's still happening",
+                    "Present perfect continuous shows an action that started in the past and continues to now",
+                    "Use a BAR that touches the NOW marker"
+                ]
+            },
+            {
+                id: 3,
+                statement: "I have never been to Japan",
+                tense: "present_perfect",
+                timelineScale: "years",
+                timelineStart: 2000,
+                timelineEnd: 2025,
+                nowPosition: 2025,
+                markerType: "bar",
+                correctAnswer: {
+                    type: "bar",
+                    start: 2000,
+                    end: 2025,
+                    flexible: false,
+                    validStartRange: [2000, 2000],
+                    validEndRange: [2025, 2025]
+                },
+                hints: [
+                    "Think about 'never' - how long does that last?",
+                    "This negative covers your entire life up until now",
+                    "Use a BAR from the timeline start to NOW"
+                ]
+            },
+            {
+                id: 4,
+                statement: "She arrived at 3pm",
+                tense: "simple",
+                timelineScale: "hours",
+                timelineStart: 12,
+                timelineEnd: 18,
+                nowPosition: 17,
+                markerType: "dot",
+                correctAnswer: {
+                    type: "dot",
+                    position: 15,
+                    flexible: false,
+                    validRange: [15, 15]
+                },
+                hints: [
+                    "Think about whether this is a moment or a duration",
+                    "Arriving happens at a specific point in time",
+                    "Use a DOT at the exact time"
+                ]
+            },
+            {
+                id: 5,
+                statement: "I had finished my homework before dinner",
+                tense: "past_perfect",
+                timelineScale: "hours",
+                timelineStart: 14,
+                timelineEnd: 20,
+                nowPosition: 20,
+                markerType: "dot",
+                additionalMarkers: [{ label: "dinner", position: 18 }],
+                correctAnswer: {
+                    type: "dot",
+                    position: 17,
+                    flexible: true,
+                    validRange: [15, 17.5]
+                },
+                hints: [
+                    "Think about the relationship between two past events",
+                    "The homework was completed before dinner happened",
+                    "Use a DOT before the 'dinner' marker"
+                ]
+            },
+            {
+                id: 6,
+                statement: "I have lived here for 5 years",
+                tense: "present_perfect",
+                timelineScale: "years",
+                timelineStart: 2015,
+                timelineEnd: 2025,
+                nowPosition: 2025,
+                markerType: "bar",
+                correctAnswer: {
+                    type: "bar",
+                    start: 2020,
+                    end: 2025,
+                    flexible: false,
+                    validStartRange: [2020, 2020],
+                    validEndRange: [2025, 2025]
+                },
+                hints: [
+                    "Present perfect connects past to present",
+                    "The action started 5 years ago and continues until now",
+                    "Use a BAR from 5 years before NOW to NOW"
+                ]
+            },
+            {
+                id: 7,
+                statement: "They had been waiting for an hour when the bus arrived",
+                tense: "past_perfect_continuous",
+                timelineScale: "minutes",
+                timelineStart: 0,
+                timelineEnd: 90,
+                nowPosition: 90,
+                markerType: "bar",
+                additionalMarkers: [{ label: "bus arrived", position: 60 }],
+                correctAnswer: {
+                    type: "bar",
+                    start: 0,
+                    end: 60,
+                    flexible: true,
+                    validStartRange: [0, 10],
+                    validEndRange: [60, 60]
+                },
+                hints: [
+                    "Past perfect continuous shows an ongoing action before a past event",
+                    "They waited for an hour before the bus came",
+                    "Use a BAR ending at 'bus arrived' marker"
+                ]
+            },
+            {
+                id: 8,
+                statement: "By next Friday, I will have completed the project",
+                tense: "future_perfect",
+                timelineScale: "days",
+                timelineStart: 1,
+                timelineEnd: 14,
+                nowPosition: 7,
+                markerType: "bar",
+                additionalMarkers: [{ label: "next Friday", position: 12 }],
+                correctAnswer: {
+                    type: "bar",
+                    start: 7,
+                    end: 12,
+                    flexible: true,
+                    validStartRange: [7, 10],
+                    validEndRange: [12, 12]
+                },
+                hints: [
+                    "Future perfect describes something that will be completed before a future time",
+                    "The project starts now and finishes by next Friday",
+                    "Use a BAR from NOW to the 'next Friday' marker"
+                ]
+            },
+            {
+                id: 9,
+                statement: "The train left at 8:30",
+                tense: "simple",
+                timelineScale: "hours",
+                timelineStart: 6,
+                timelineEnd: 12,
+                nowPosition: 10,
+                markerType: "dot",
+                correctAnswer: {
+                    type: "dot",
+                    position: 8.5,
+                    flexible: false,
+                    validRange: [8.5, 8.5]
+                },
+                hints: [
+                    "This describes a specific moment in the past",
+                    "Leaving is an action that happens at one point in time",
+                    "Use a DOT at 8:30"
+                ]
+            },
+            {
+                id: 10,
+                statement: "I have been studying English since 2020",
+                tense: "present_perfect_continuous",
+                timelineScale: "years",
+                timelineStart: 2018,
+                timelineEnd: 2025,
+                nowPosition: 2025,
+                markerType: "bar",
+                correctAnswer: {
+                    type: "bar",
+                    start: 2020,
+                    end: 2025,
+                    flexible: false,
+                    validStartRange: [2020, 2020],
+                    validEndRange: [2025, 2025]
+                },
+                hints: [
+                    "Present perfect continuous emphasizes the duration of an ongoing action",
+                    "The action started in 2020 and is still happening",
+                    "Use a BAR from 2020 to NOW"
+                ]
+            },
+            {
+                id: 11,
+                statement: "She had already eaten when I called",
+                tense: "past_perfect",
+                timelineScale: "hours",
+                timelineStart: 17,
+                timelineEnd: 21,
+                nowPosition: 21,
+                markerType: "dot",
+                additionalMarkers: [{ label: "I called", position: 19 }],
+                correctAnswer: {
+                    type: "dot",
+                    position: 18.5,
+                    flexible: true,
+                    validRange: [17.5, 18.8]
+                },
+                hints: [
+                    "Past perfect shows one action completed before another past action",
+                    "She finished eating before the phone call",
+                    "Use a DOT before the 'I called' marker"
+                ]
+            },
+            {
+                id: 12,
+                statement: "The movie starts at 7pm tonight",
+                tense: "simple",
+                timelineScale: "hours",
+                timelineStart: 15,
+                timelineEnd: 22,
+                nowPosition: 18,
+                markerType: "dot",
+                correctAnswer: {
+                    type: "dot",
+                    position: 19,
+                    flexible: false,
+                    validRange: [19, 19]
+                },
+                hints: [
+                    "This is a scheduled future event at a specific time",
+                    "Even though it's in the future, we treat it as a moment in time",
+                    "Use a DOT at 7pm (19:00)"
+                ]
+            },
+            {
+                id: 13,
+                statement: "I will have been working here for 10 years by December",
+                tense: "future_perfect_continuous",
+                timelineScale: "months",
+                timelineStart: 1,
+                timelineEnd: 12,
+                nowPosition: 6,
+                markerType: "bar",
+                additionalMarkers: [{ label: "December", position: 12 }],
+                correctAnswer: {
+                    type: "bar",
+                    start: 1,
+                    end: 12,
+                    flexible: true,
+                    validStartRange: [1, 3],
+                    validEndRange: [12, 12]
+                },
+                hints: [
+                    "Future perfect continuous shows ongoing action up to a future point",
+                    "The work period spans to December",
+                    "Use a BAR ending at the 'December' marker"
+                ]
+            },
+            {
+                id: 14,
+                statement: "We met in 2015",
+                tense: "simple",
+                timelineScale: "years",
+                timelineStart: 2010,
+                timelineEnd: 2025,
+                nowPosition: 2025,
+                markerType: "dot",
+                correctAnswer: {
+                    type: "dot",
+                    position: 2015,
+                    flexible: false,
+                    validRange: [2015, 2015]
+                },
+                hints: [
+                    "This is a single completed action in the past",
+                    "Meeting happens at one point in time",
+                    "Use a DOT at 2015"
+                ]
+            },
+            {
+                id: 15,
+                statement: "I have just finished my breakfast",
+                tense: "present_perfect",
+                timelineScale: "minutes",
+                timelineStart: 0,
+                timelineEnd: 20,
+                nowPosition: 20,
+                markerType: "bar",
+                correctAnswer: {
+                    type: "bar",
+                    start: 10,
+                    end: 20,
+                    flexible: true,
+                    validStartRange: [5, 15],
+                    validEndRange: [19, 20]
+                },
+                hints: [
+                    "Present perfect shows recent completion",
+                    "The action happened very recently and ends at now",
+                    "Use a BAR ending at NOW"
+                ]
+            }
+        ];
+
+        // Game State
+        let gameMode = null;
+        let selectedTenses = [];
+        let filteredQuestions = [];
+        let currentQuestionIndex = 0;
+        let showMarkerType = true;
+        let hintLevel = 0;
+        let selectedMarkerType = null;
+        let submitted = false;
+        let isCorrect = null;
+        let score = 0;
+        let totalAnswered = 0;
+
+        // Timeline interaction state
+        let barPosition = null;
+        let dotPosition = null;
+        let isDragging = false;
+        let dragHandle = null;
+        let draggedMarker = null;
+
+        // Blank mode state
+        let blankMarkers = [];
+        let currentBlankQuestion = null;
+
+        // DOM Elements
+        const startScreen = document.getElementById('startScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const questionText = document.getElementById('questionText');
+        const questionNumber = document.getElementById('questionNumber');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const toggleTypeBtn = document.getElementById('toggleTypeBtn');
+        const toggleText = document.getElementById('toggleText');
+        const markerHint = document.getElementById('markerHint');
+        const dotBtn = document.getElementById('dotBtn');
+        const barBtn = document.getElementById('barBtn');
+        const hintSection = document.getElementById('hintSection');
+        const hintBtn = document.getElementById('hintBtn');
+        const hintCount = document.getElementById('hintCount');
+        const hintsDisplay = document.getElementById('hintsDisplay');
+        const timeline = document.getElementById('timeline');
+        const scaleLabel = document.getElementById('scaleLabel');
+        const feedback = document.getElementById('feedback');
+        const submitBtn = document.getElementById('submitBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const blankModeCard = document.getElementById('blankModeCard');
+
+        // Event Listeners
+        toggleTypeBtn.addEventListener('click', toggleMarkerTypeVisibility);
+        dotBtn.addEventListener('click', () => selectMarkerType('dot'));
+        barBtn.addEventListener('click', () => selectMarkerType('bar'));
+        hintBtn.addEventListener('click', getHint);
+        submitBtn.addEventListener('click', validateAnswer);
+        nextBtn.addEventListener('click', nextQuestion);
+        timeline.addEventListener('click', handleTimelineClick);
+
+        // Mouse/Touch events
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+        document.addEventListener('touchend', handleTouchEnd);
+
+        // Start Screen Functions
+        function selectMode(mode) {
+            gameMode = mode;
+            document.getElementById('practiceBtn').classList.remove('selected');
+            document.getElementById('gameBtn').classList.remove('selected');
+            document.getElementById('blankBtn').classList.remove('selected');
+            
+            if (mode === 'practice') {
+                document.getElementById('practiceBtn').classList.add('selected');
+                document.getElementById('tenseSelection').style.display = 'block';
+            } else if (mode === 'game') {
+                document.getElementById('gameBtn').classList.add('selected');
+                document.getElementById('tenseSelection').style.display = 'block';
+            } else if (mode === 'blank') {
+                document.getElementById('blankBtn').classList.add('selected');
+                document.getElementById('tenseSelection').style.display = 'none';
+            }
+        }
+
+        function toggleAllTenses() {
+            const allChecked = document.getElementById('allTenses').checked;
+            const tenseFilters = document.querySelectorAll('.tense-filter');
+            tenseFilters.forEach(filter => {
+                filter.checked = allChecked;
+            });
+        }
+
+        function startGame() {
+            if (!gameMode) {
+                alert('Please select a mode first!');
+                return;
+            }
+
+            if (gameMode !== 'blank') {
+                const tenseFilters = document.querySelectorAll('.tense-filter:checked');
+                if (tenseFilters.length === 0) {
+                    alert('Please select at least one tense to practice!');
+                    return;
+                }
+                selectedTenses = Array.from(tenseFilters).map(f => f.value);
+                
+                // Filter and randomize questions
+                filteredQuestions = QUESTION_BANK.filter(q => selectedTenses.includes(q.tense));
+                filteredQuestions = shuffleArray([...filteredQuestions]);
+            } else {
+                // Blank mode - create initial blank question
+                createBlankQuestion();
+            }
+
+            startScreen.style.display = 'none';
+            gameScreen.classList.add('active');
+
+            if (gameMode === 'game') {
+                scoreDisplay.style.display = 'block';
+                submitBtn.style.display = 'inline-block';
+                toggleTypeBtn.style.display = 'none';
+                showMarkerType = false;
+            } else if (gameMode === 'practice') {
+                scoreDisplay.style.display = 'none';
+                submitBtn.style.display = 'inline-block';
+                toggleTypeBtn.style.display = 'inline-block';
+                showMarkerType = true;
+            } else if (gameMode === 'blank') {
+                scoreDisplay.style.display = 'none';
+                submitBtn.style.display = 'none';
+                toggleTypeBtn.style.display = 'none';
+                blankModeCard.style.display = 'block';
+                questionNumber.style.display = 'none';
+                showMarkerType = false;
+            }
+
+            loadQuestion();
+        }
+
+        function createBlankQuestion() {
+            currentBlankQuestion = {
+                statement: "Your statement here...",
+                timelineScale: "years",
+                timelineStart: 2010,
+                timelineEnd: 2025,
+                nowPosition: 2025,
+                additionalMarkers: []
+            };
+        }
+
+        function applyBlankSettings() {
+            const statement = document.getElementById('blankStatement').value || "Your statement here...";
+            const scale = document.getElementById('blankScale').value;
+            const start = parseFloat(document.getElementById('blankStart').value);
+            const end = parseFloat(document.getElementById('blankEnd').value);
+            const now = parseFloat(document.getElementById('blankNow').value);
+
+            currentBlankQuestion = {
+                statement: statement,
+                timelineScale: scale,
+                timelineStart: start,
+                timelineEnd: end,
+                nowPosition: now,
+                additionalMarkers: blankMarkers
+            };
+
+            loadQuestion();
+        }
+
+        function addBlankMarker() {
+            const label = prompt("Enter label for reference point:");
+            if (label) {
+                const position = parseFloat(prompt("Enter position on timeline:"));
+                if (!isNaN(position)) {
+                    blankMarkers.push({ label, position });
+                    applyBlankSettings();
+                }
+            }
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function backToStart() {
+            gameScreen.classList.remove('active');
+            startScreen.style.display = 'block';
+            resetGame();
+        }
+
+        function resetGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            totalAnswered = 0;
+            gameMode = null;
+            filteredQuestions = [];
+            blankMarkers = [];
+            resetQuestion();
+        }
+
+        function loadQuestion() {
+            let question;
+            if (gameMode === 'blank') {
+                question = currentBlankQuestion;
+                questionNumber.style.display = 'none';
+            } else {
+                question = filteredQuestions[currentQuestionIndex];
+                questionNumber.textContent = `Question ${currentQuestionIndex + 1} of ${filteredQuestions.length}`;
+                questionNumber.style.display = 'block';
+            }
+            
+            questionText.textContent = `"${question.statement}"`;
+            scaleLabel.textContent = `Timeline in ${question.timelineScale}`;
+            
+            if (showMarkerType && question.markerType) {
+                markerHint.textContent = `Use a ${question.markerType.toUpperCase() === 'BAR' ? 'PERIOD OF TIME' : 'MOMENT IN TIME'} for this question`;
+                markerHint.style.display = 'block';
+                dotBtn.style.display = 'none';
+                barBtn.style.display = 'none';
+                hintSection.style.display = 'none';
+                selectedMarkerType = question.markerType;
+            } else {
+                markerHint.style.display = 'none';
+                dotBtn.style.display = 'inline-block';
+                barBtn.style.display = 'inline-block';
+                if (gameMode !== 'blank' && question.hints) {
+                    hintSection.style.display = 'block';
+                } else {
+                    hintSection.style.display = 'none';
+                }
+            }
+            
+            renderTimeline();
+            updateSubmitButton();
+        }
+
+        function renderTimeline() {
+            let question;
+            if (gameMode === 'blank') {
+                question = currentBlankQuestion;
+            } else {
+                question = filteredQuestions[currentQuestionIndex];
+            }
+            
+            timeline.innerHTML = '';
+            
+            // Add notches
+            for (let i = 0; i <= 10; i++) {
+                const value = question.timelineStart + (i * (question.timelineEnd - question.timelineStart) / 10);
+                const left = (i / 10) * 100;
+                
+                const notch = document.createElement('div');
+                notch.className = 'timeline-notch';
+                notch.style.left = `${left}%`;
+                
+                const label = document.createElement('div');
+                label.className = 'timeline-label';
+                label.style.left = `${left}%`;
+                label.textContent = getScaleLabel(Math.round(value * 10) / 10);
+                
+                timeline.appendChild(notch);
+                timeline.appendChild(label);
+            }
+            
+            // Add NOW marker
+            const nowLeft = getPixelPosition(question.nowPosition);
+            const nowMarker = document.createElement('div');
+            nowMarker.className = 'now-marker' + (gameMode === 'blank' ? ' movable' : '');
+            nowMarker.style.left = `${nowLeft}px`;
+            if (gameMode === 'blank') {
+                nowMarker.addEventListener('mousedown', (e) => handleMarkerDragStart(e, 'now'));
+                nowMarker.addEventListener('touchstart', (e) => handleMarkerDragStart(e, 'now'));
+            }
+            
+            const nowLabel = document.createElement('div');
+            nowLabel.className = 'now-label';
+            nowLabel.textContent = 'NOW';
+            
+            const nowArrow = document.createElement('div');
+            nowArrow.className = 'now-arrow';
+            
+            nowMarker.appendChild(nowLabel);
+            nowMarker.appendChild(nowArrow);
+            timeline.appendChild(nowMarker);
+            
+            // Add additional markers
+            if (question.additionalMarkers) {
+                question.additionalMarkers.forEach((marker, index) => {
+                    const markerLeft = getPixelPosition(marker.position);
+                    const additionalMarker = document.createElement('div');
+                    additionalMarker.className = 'additional-marker';
+                    additionalMarker.style.left = `${markerLeft}px`;
+                    additionalMarker.dataset.index = index;
+                    
+                    if (gameMode === 'blank') {
+                        additionalMarker.addEventListener('mousedown', (e) => handleMarkerDragStart(e, 'additional', index));
+                        additionalMarker.addEventListener('touchstart', (e) => handleMarkerDragStart(e, 'additional', index));
+                    }
+                    
+                    const markerLabel = document.createElement('div');
+                    markerLabel.className = 'additional-marker-label';
+                    markerLabel.textContent = marker.label;
+                    
+                    additionalMarker.appendChild(markerLabel);
+                    timeline.appendChild(additionalMarker);
+                });
+            }
+            
+            // Render user's answer
+            if (barPosition) {
+                renderBar();
+            }
+            if (dotPosition !== null) {
+                renderDot();
+            }
+            
+            // Show correct answer if submitted and incorrect
+            if (submitted && !isCorrect && gameMode !== 'blank') {
+                renderCorrectAnswer();
+            }
+        }
+
+        function renderBar() {
+            const startPx = getPixelPosition(barPosition.start);
+            const endPx = getPixelPosition(barPosition.end);
+            
+            const bar = document.createElement('div');
+            bar.className = `user-bar ${submitted ? (isCorrect ? 'correct' : 'incorrect') : 'default'}`;
+            bar.style.left = `${startPx}px`;
+            bar.style.width = `${endPx - startPx}px`;
+            bar.id = 'userBar';
+            
+            if (!submitted) {
+                // Add handles
+                const startHandle = document.createElement('div');
+                startHandle.className = 'bar-handle start';
+                startHandle.addEventListener('mousedown', (e) => handleBarDragStart(e, 'start'));
+                startHandle.addEventListener('touchstart', (e) => handleBarDragStart(e, 'start'));
+                
+                const endHandle = document.createElement('div');
+                endHandle.className = 'bar-handle end';
+                endHandle.addEventListener('mousedown', (e) => handleBarDragStart(e, 'end'));
+                endHandle.addEventListener('touchstart', (e) => handleBarDragStart(e, 'end'));
+                
+                bar.appendChild(startHandle);
+                bar.appendChild(endHandle);
+            }
+            
+            timeline.appendChild(bar);
+        }
+
+        function renderDot() {
+            const dotPx = getPixelPosition(dotPosition);
+            
+            const dot = document.createElement('div');
+            dot.className = `user-dot ${submitted ? (isCorrect ? 'correct' : 'incorrect') : 'default'}`;
+            dot.style.left = `${dotPx}px`;
+            
+            timeline.appendChild(dot);
+        }
+
+        function renderCorrectAnswer() {
+            const question = filteredQuestions[currentQuestionIndex];
+            const { correctAnswer } = question;
+            
+            if (correctAnswer.type === 'bar') {
+                const startPx = getPixelPosition(correctAnswer.start);
+                const endPx = getPixelPosition(correctAnswer.end);
+                
+                const overlay = document.createElement('div');
+                overlay.className = 'correct-answer-overlay';
+                overlay.style.left = `${startPx}px`;
+                overlay.style.width = `${endPx - startPx}px`;
+                
+                timeline.appendChild(overlay);
+            } else if (correctAnswer.type === 'dot') {
+                const dotPx = getPixelPosition(correctAnswer.position);
+                
+                const overlay = document.createElement('div');
+                overlay.className = 'correct-dot-overlay';
+                overlay.style.left = `${dotPx}px`;
+                
+                timeline.appendChild(overlay);
+            }
+        }
+
+        function getPixelPosition(value) {
+            let question;
+            if (gameMode === 'blank') {
+                question = currentBlankQuestion;
+            } else {
+                question = filteredQuestions[currentQuestionIndex];
+            }
+            const range = question.timelineEnd - question.timelineStart;
+            const normalized = (value - question.timelineStart) / range;
+            const width = timeline.offsetWidth;
+            return normalized * width;
+        }
+
+        function getTimelineValue(pixelX) {
+            const rect = timeline.getBoundingClientRect();
+            const relativeX = Math.max(0, Math.min(pixelX - rect.left, rect.width));
+            const normalized = relativeX / rect.width;
+            
+            let question;
+            if (gameMode === 'blank') {
+                question = currentBlankQuestion;
+            } else {
+                question = filteredQuestions[currentQuestionIndex];
+            }
+            const range = question.timelineEnd - question.timelineStart;
+            const value = question.timelineStart + (normalized * range);
+            
+            // Snap to nearest notch
+            const notchSize = range / 10;
+            return Math.round(value / notchSize) * notchSize;
+        }
+
+        function getScaleLabel(value) {
+            let question;
+            if (gameMode === 'blank') {
+                question = currentBlankQuestion;
+            } else {
+                question = filteredQuestions[currentQuestionIndex];
+            }
+            if (question.timelineScale === 'years') return value.toString();
+            if (question.timelineScale === 'months') return `M${Math.round(value)}`;
+            if (question.timelineScale === 'days') return `D${Math.round(value)}`;
+            if (question.timelineScale === 'hours') return `${Math.round(value)}:00`;
+            if (question.timelineScale === 'minutes') return `${Math.round(value)}m`;
+            return value.toString();
+        }
+
+        function handleTimelineClick(e) {
+            if (submitted || isDragging || !selectedMarkerType) return;
+            
+            const clickedValue = getTimelineValue(e.clientX);
+            let question;
+            if (gameMode === 'blank') {
+                question = currentBlankQuestion;
+            } else {
+                question = filteredQuestions[currentQuestionIndex];
+            }
+            
+            if (selectedMarkerType === 'dot') {
+                dotPosition = clickedValue;
+                barPosition = null;
+            } else if (selectedMarkerType === 'bar') {
+                // Create bar with 1 full block width (1/10 of timeline range)
+                const range = question.timelineEnd - question.timelineStart;
+                const blockWidth = range / 10;
+                barPosition = {
+                    start: clickedValue,
+                    end: Math.min(clickedValue + blockWidth, question.timelineEnd)
+                };
+                dotPosition = null;
+            }
+            
+            renderTimeline();
+            updateSubmitButton();
+        }
+
+        function handleBarDragStart(e, handle) {
+            e.stopPropagation();
+            e.preventDefault();
+            isDragging = true;
+            dragHandle = handle;
+        }
+
+        function handleMarkerDragStart(e, markerType, index) {
+            e.stopPropagation();
+            e.preventDefault();
+            isDragging = true;
+            draggedMarker = { type: markerType, index: index };
+        }
+
+        function handleMouseMove(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            if (dragHandle) {
+                // Dragging bar handle
+                const value = getTimelineValue(e.clientX);
+                
+                if (dragHandle === 'start') {
+                    barPosition.start = Math.min(value, barPosition.end);
+                } else if (dragHandle === 'end') {
+                    barPosition.end = Math.max(value, barPosition.start);
+                }
+                
+                renderTimeline();
+            } else if (draggedMarker) {
+                // Dragging marker
+                const value = getTimelineValue(e.clientX);
+                
+                if (draggedMarker.type === 'now') {
+                    currentBlankQuestion.nowPosition = value;
+                } else if (draggedMarker.type === 'additional') {
+                    currentBlankQuestion.additionalMarkers[draggedMarker.index].position = value;
+                }
+                
+                renderTimeline();
+            }
+        }
+
+        function handleTouchMove(e) {
+            if (!isDragging) return;
+            e.preventDefault();
+            
+            const touch = e.touches[0];
+            
+            if (dragHandle) {
+                const value = getTimelineValue(touch.clientX);
+                
+                if (dragHandle === 'start') {
+                    barPosition.start = Math.min(value, barPosition.end);
+                } else if (dragHandle === 'end') {
+                    barPosition.end = Math.max(value, barPosition.start);
+                }
+                
+                renderTimeline();
+            } else if (draggedMarker) {
+                const value = getTimelineValue(touch.clientX);
+                
+                if (draggedMarker.type === 'now') {
+                    currentBlankQuestion.nowPosition = value;
+                } else if (draggedMarker.type === 'additional') {
+                    currentBlankQuestion.additionalMarkers[draggedMarker.index].position = value;
+                }
+                
+                renderTimeline();
+            }
+        }
+
+        function handleMouseUp() {
+            isDragging = false;
+            dragHandle = null;
+            draggedMarker = null;
+        }
+
+        function handleTouchEnd() {
+            isDragging = false;
+            dragHandle = null;
+            draggedMarker = null;
+        }
+
+        function toggleMarkerTypeVisibility() {
+            showMarkerType = !showMarkerType;
+            toggleText.textContent = showMarkerType ? 'Hide Type' : 'Show Type';
+            resetQuestion();
+            loadQuestion();
+        }
+
+        function selectMarkerType(type) {
+            if (submitted && gameMode !== 'blank') return;
+            selectedMarkerType = type;
+            
+            dotBtn.className = type === 'dot' ? 'marker-btn active' : 'marker-btn inactive';
+            barBtn.className = type === 'bar' ? 'marker-btn active' : 'marker-btn inactive';
+            
+            updateSubmitButton();
+        }
+
+        function getHint() {
+            const question = filteredQuestions[currentQuestionIndex];
+            if (hintLevel < question.hints.length) {
+                hintLevel++;
+                hintCount.textContent = `${hintLevel}/${question.hints.length}`;
+                
+                hintsDisplay.style.display = 'block';
+                hintsDisplay.innerHTML = '';
+                for (let i = 0; i < hintLevel; i++) {
+                    const hintItem = document.createElement('div');
+                    hintItem.className = 'hint-item';
+                    hintItem.textContent = `💡 ${question.hints[i]}`;
+                    hintsDisplay.appendChild(hintItem);
+                }
+                
+                if (hintLevel >= question.hints.length) {
+                    hintBtn.disabled = true;
+                }
+            }
+        }
+
+        function validateAnswer() {
+            const question = filteredQuestions[currentQuestionIndex];
+            const { correctAnswer } = question;
+            let correct = false;
+
+            if (correctAnswer.type === 'dot' && dotPosition !== null) {
+                const [minValid, maxValid] = correctAnswer.validRange;
+                correct = dotPosition >= minValid && dotPosition <= maxValid;
+            } else if (correctAnswer.type === 'bar' && barPosition !== null) {
+                const { validStartRange, validEndRange } = correctAnswer;
+                const startCorrect = barPosition.start >= validStartRange[0] && 
+                                    barPosition.start <= validStartRange[1];
+                const endCorrect = barPosition.end >= validEndRange[0] && 
+                                  barPosition.end <= validEndRange[1];
+                correct = startCorrect && endCorrect;
+            }
+
+            isCorrect = correct;
+            submitted = true;
+            totalAnswered++;
+            if (correct) score++;
+            
+            renderTimeline();
+            showFeedback();
+            updateScore();
+            
+            submitBtn.style.display = 'none';
+            nextBtn.style.display = 'inline-block';
+            
+            if (currentQuestionIndex >= filteredQuestions.length - 1) {
+                nextBtn.disabled = true;
+                nextBtn.textContent = 'Game Complete! 🎉';
+            }
+        }
+
+        function showFeedback() {
+            feedback.style.display = 'block';
+            feedback.className = `feedback ${isCorrect ? 'correct' : 'incorrect'}`;
+            
+            const icon = isCorrect ? '✓' : '✗';
+            const title = isCorrect ? 'Correct!' : 'Not quite right';
+            const text = isCorrect 
+                ? "Great job! You correctly placed the action on the timeline."
+                : "The correct answer is shown in green (semi-transparent). Keep practicing!";
+            
+            feedback.innerHTML = `
+                <div class="feedback-header">
+                    ${icon} ${title}
+                </div>
+                <div class="feedback-text">${text}</div>
+            `;
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < filteredQuestions.length - 1) {
+                currentQuestionIndex++;
+                resetQuestion();
+                loadQuestion();
+            }
+        }
+
+        function clearAnswer() {
+            barPosition = null;
+            dotPosition = null;
+            renderTimeline();
+            updateSubmitButton();
+        }
+
+        function resetQuestion() {
+            barPosition = null;
+            dotPosition = null;
+            if (gameMode !== 'blank') {
+                selectedMarkerType = showMarkerType ? filteredQuestions[currentQuestionIndex]?.markerType : null;
+            } else {
+                selectedMarkerType = null;
+            }
+            hintLevel = 0;
+            submitted = false;
+            isCorrect = null;
+            isDragging = false;
+            dragHandle = null;
+            draggedMarker = null;
+            
+            if (!showMarkerType || gameMode === 'blank') {
+                dotBtn.className = 'marker-btn inactive';
+                barBtn.className = 'marker-btn inactive';
+            }
+            
+            hintCount.textContent = '0/3';
+            hintsDisplay.style.display = 'none';
+            hintsDisplay.innerHTML = '';
+            hintBtn.disabled = false;
+            
+            feedback.style.display = 'none';
+            if (gameMode !== 'blank') {
+                submitBtn.style.display = 'inline-block';
+            }
+            submitBtn.disabled = true;
+            nextBtn.style.display = 'none';
+        }
+
+        function updateSubmitButton() {
+            if (gameMode === 'blank') {
+                submitBtn.style.display = 'none';
+                return;
+            }
+            
+            const canSubmit = (selectedMarkerType === 'dot' && dotPosition !== null) ||
+                            (selectedMarkerType === 'bar' && barPosition !== null);
+            submitBtn.disabled = !canSubmit;
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = `Score: ${score}/${totalAnswered}`;
+        }
+    </script>
+</body>
+</html>
