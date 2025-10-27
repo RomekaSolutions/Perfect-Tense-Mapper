@@ -1586,20 +1586,56 @@
         function getTimelineValue(pixelX) {
             const rect = timeline.getBoundingClientRect();
             const relativeX = Math.max(0, Math.min(pixelX - rect.left, rect.width));
-            const normalized = relativeX / rect.width;
-            
+            const normalized = rect.width === 0 ? 0 : relativeX / rect.width;
+
             let question;
             if (gameMode === 'blank') {
                 question = currentBlankQuestion;
             } else {
                 question = filteredQuestions[currentQuestionIndex];
             }
+
+            if (!question) return 0;
+
             const range = question.timelineEnd - question.timelineStart;
             const value = question.timelineStart + (normalized * range);
-            
-            // Snap to nearest notch
+
+            const snapPointSet = new Set();
+
             const notchSize = range / 10;
-            return Math.round(value / notchSize) * notchSize;
+            for (let i = 0; i <= 10; i++) {
+                snapPointSet.add(question.timelineStart + (i * notchSize));
+            }
+
+            if (typeof question.nowPosition === 'number') {
+                snapPointSet.add(question.nowPosition);
+            }
+
+            if (Array.isArray(question.additionalMarkers)) {
+                question.additionalMarkers.forEach(marker => {
+                    if (marker && typeof marker.position === 'number') {
+                        snapPointSet.add(marker.position);
+                    }
+                });
+            }
+
+            const snapPoints = Array.from(snapPointSet).sort((a, b) => a - b);
+            if (snapPoints.length === 0) {
+                return value;
+            }
+
+            let closest = snapPoints[0];
+            let smallestDiff = Math.abs(value - closest);
+
+            for (let i = 1; i < snapPoints.length; i++) {
+                const diff = Math.abs(value - snapPoints[i]);
+                if (diff < smallestDiff) {
+                    smallestDiff = diff;
+                    closest = snapPoints[i];
+                }
+            }
+
+            return closest;
         }
 
         function getScaleLabel(value) {
